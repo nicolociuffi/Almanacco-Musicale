@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Almanacco Musicale - Ascolto Quotidiano</title>
+  <link rel="stylesheet" href="index.css">
   <style>
     :root {
       --bg: #0f172a;
@@ -11,13 +12,12 @@
       --text: #f8fafc;
       --muted: #94a3b8;
       --gold: #f59e0b;
-      --gold-hover: #d97706;
       --blue: #38bdf8;
       --border: #334155;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.5;
@@ -32,10 +32,32 @@
       top: 0;
       z-index: 50;
     }
-    h1 { font-size: 1.4rem; color: var(--gold); letter-spacing: 0.5px; }
+    h1 { font-size: 1.4rem; color: var(--gold); }
     .author-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-
-    /* Barra di Navigazione */
+    .quote-box {
+      font-size: 0.8rem;
+      font-style: italic;
+      color: #cbd5e1;
+      max-width: 600px;
+      margin: 8px auto 0;
+    }
+    .tools-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-tool {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-tool:hover { color: var(--text); border-color: var(--muted); }
     .nav-bar {
       display: flex;
       align-items: center;
@@ -51,9 +73,7 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.85rem;
-      transition: all 0.2s;
     }
-    .btn-nav:hover { background: var(--border); }
     .date-trigger {
       background: #172554;
       border: 1px solid var(--blue);
@@ -64,8 +84,6 @@
       cursor: pointer;
       font-size: 0.9rem;
     }
-
-    /* Modal Calendario a Griglia */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -83,7 +101,6 @@
       max-width: 440px;
       width: 100%;
       padding: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
     .modal-header {
       display: flex;
@@ -99,7 +116,7 @@
       font-size: 1.5rem;
       cursor: pointer;
     }
-   .month-selector {
+    .month-selector {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 6px;
@@ -109,11 +126,11 @@
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 4px 10px;
+      padding: 6px 4px;
       border-radius: 4px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       cursor: pointer;
-      white-space: nowrap;
+      text-align: center;
     }
     .btn-m.active {
       background: var(--gold);
@@ -143,10 +160,6 @@
       font-weight: 600;
       border-color: #475569;
     }
-    .day-btn.has-data:hover {
-      background: var(--blue);
-      color: #000;
-    }
     .day-btn.current {
       background: var(--gold);
       color: #000;
@@ -157,8 +170,6 @@
       opacity: 0.25;
       cursor: not-allowed;
     }
-
-    /* Contenuto Principale */
     .container {
       max-width: 1000px;
       margin: 20px auto;
@@ -197,7 +208,6 @@
     }
     .card-classica .card-header { background: #1e1b4b; color: #a5b4fc; }
     .card-risonanze .card-header { background: #3b0764; color: #f0abfc; }
-    
     .video-wrapper {
       position: relative;
       padding-bottom: 56.25%;
@@ -226,6 +236,14 @@
   <header>
     <h1>Almanacco Musicale</h1>
     <div class="author-sub">A cura del Prof. Nicolò Ciuffi</div>
+    <div class="quote-box">"La musica è come la vita, si può fare in un solo modo: insieme." — Ezio Bosso</div>
+    
+    <div class="tools-bar">
+      <button class="btn-tool" id="btn-random">🎲 Giorno a sorpresa</button>
+      <button class="btn-tool" onclick="alert('Funzione Playlist in arrivo con il catalogo annuale')">⭐ La mia playlist</button>
+      <button class="btn-tool" onclick="alert('Funzione Archivio in arrivo')">🔍 Cerca nell\'archivio</button>
+    </div>
+
     <div class="nav-bar">
       <button class="btn-nav" id="btn-prev">◀ Ieri</button>
       <button class="date-trigger" id="btn-calendar">📅 Seleziona Data</button>
@@ -233,7 +251,6 @@
     </div>
   </header>
 
-  <!-- Modal Calendario a Griglia -->
   <div class="modal-overlay" id="modal-cal">
     <div class="modal-box">
       <div class="modal-header">
@@ -248,7 +265,6 @@
   <main class="container">
     <div class="day-tag" id="current-tag">Caricamento ascolti...</div>
     <div class="tracks-grid">
-      <!-- Scheda Classica -->
       <div class="track-card card-classica">
         <div class="card-header">Canone Classico</div>
         <div class="video-wrapper">
@@ -260,7 +276,6 @@
           <div class="track-desc" id="desc-classica">--</div>
         </div>
       </div>
-      <!-- Scheda Risonanze -->
       <div class="track-card card-risonanze">
         <div class="card-header">Altre Risonanze</div>
         <div class="video-wrapper">
@@ -275,7 +290,6 @@
     </div>
   </main>
 
-  <!-- Inclusione Dati -->
   <script src="catalogo.js"></script>
   <script>
     const months = [
@@ -297,16 +311,6 @@
     let currentIndex = 0;
     const data = window.ALMANACCO_DATA || [];
 
-    // Trova la data odierna o ripiega sulla prima data disponibile
-    function getTodayMatch() {
-      const now = new Date();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const todayStr = `${mm}-${dd}`;
-      const idx = data.findIndex(d => d.date === todayStr);
-      return idx !== -1 ? idx : 0;
-    }
-
     function renderDay(index) {
       if (!data[index]) return;
       currentIndex = index;
@@ -315,28 +319,30 @@
       document.getElementById('current-tag').textContent = item.tag;
       document.getElementById('btn-calendar').textContent = `📅 ${item.tag.split('·')[0].trim()} ▼`;
 
-      // Classica
       document.getElementById('title-classica').textContent = item.classica.title;
       document.getElementById('author-classica').textContent = item.classica.composer;
       document.getElementById('desc-classica').textContent = item.classica.desc;
       document.getElementById('video-classica').src = `https://www.youtube.com/embed/${item.classica.ytId}`;
 
-      // Risonanze
       document.getElementById('title-risonanze').textContent = item.risonanze.title;
       document.getElementById('author-risonanze').textContent = item.risonanze.artist;
       document.getElementById('desc-risonanze').textContent = item.risonanze.desc;
       document.getElementById('video-risonanze').src = `https://www.youtube.com/embed/${item.risonanze.ytId}`;
     }
 
-    // Navigazione
     document.getElementById('btn-prev').onclick = () => {
       if (currentIndex > 0) renderDay(currentIndex - 1);
     };
     document.getElementById('btn-next').onclick = () => {
       if (currentIndex < data.length - 1) renderDay(currentIndex + 1);
     };
+    document.getElementById('btn-random').onclick = () => {
+      if (data.length > 0) {
+        const rand = Math.floor(Math.random() * data.length);
+        renderDay(rand);
+      }
+    };
 
-    // Modal Calendario
     const modal = document.getElementById('modal-cal');
     document.getElementById('btn-calendar').onclick = () => {
       modal.style.display = 'flex';
@@ -386,12 +392,10 @@
       }
     }
 
-    // Inizializzazione
     window.addEventListener('DOMContentLoaded', () => {
-      currentIndex = getTodayMatch();
-      if (data[currentIndex]) {
-        selectedMonth = data[currentIndex].date.split('-')[0];
-        renderDay(currentIndex);
+      if (data.length > 0) {
+        selectedMonth = data[0].date.split('-')[0];
+        renderDay(0);
       }
     });
   </script>
