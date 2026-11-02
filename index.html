@@ -295,33 +295,6 @@
   </main>
 
   <script src="/catalogo.js"></script>
-  <script>
-    const months = [
-      { name: "Gen", num: "01", days: 31 },
-      { name: "Feb", num: "02", days: 28 },
-      { name: "Mar", num: "03", days: 31 },
-      { name: "Apr", num: "04", days: 30 },
-      { name: "Mag", num: "05", days: 31 },
-      { name: "Giu", num: "06", days: 30 },
-      { name: "Lug", num: "07", days: 31 },
-      { name: "Ago", num: "08", days: 31 },
-      { name: "Set", num: "09", days: 30 },
-      { name: "Ott", num: "10", days: 31 },
-      { name: "Nov", num: "11", days: 30 },
-      { name: "Dic", num: "12", days: 31 }
-    ];
-
-    let selectedMonth = "11";
-    let currentIndex = 0;
-
-    function getData() {
-      return window.ALMANACCO_DATA || [];
-    }
-
-    function renderDay(index) {
-      const data = getData();
-      if (!data[index]) return;
-      currentIndex = index;
-      const item = data[index];
-
-      document.getElementById('current-tag').textContent = item.tag;
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
