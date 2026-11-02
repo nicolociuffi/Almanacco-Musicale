@@ -1,15 +1,400 @@
 <!DOCTYPE html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Almanacco Musicale</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-[#FDFBF7]">
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Almanacco Musicale - Ascolto Quotidiano</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --gold-hover: #d97706;
+      --blue: #38bdf8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+    header {
+      background-color: #090d16;
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 1rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    h1 { font-size: 1.4rem; color: var(--gold); letter-spacing: 0.5px; }
+    .author-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    /* Barra di Navigazione */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .btn-nav {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .btn-nav:hover { background: var(--border); }
+    .date-trigger {
+      background: #172554;
+      border: 1px solid var(--blue);
+      color: #bae6fd;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* Modal Calendario a Griglia */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-width: 440px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .modal-title { font-size: 1.1rem; color: var(--gold); font-weight: bold; }
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .month-selector {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    .btn-m {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-m.active {
+      background: var(--gold);
+      color: #000;
+      font-weight: bold;
+      border-color: var(--gold);
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .day-btn {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .day-btn.has-data {
+      color: var(--text);
+      font-weight: 600;
+      border-color: #475569;
+    }
+    .day-btn.has-data:hover {
+      background: var(--blue);
+      color: #000;
+    }
+    .day-btn.current {
+      background: var(--gold);
+      color: #000;
+      font-weight: bold;
+      border-color: var(--gold);
+    }
+    .day-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+
+    /* Contenuto Principale */
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+    .day-tag {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .tracks-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 768px) {
+      .tracks-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .track-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-header {
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-classica .card-header { background: #1e1b4b; color: #a5b4fc; }
+    .card-risonanze .card-header { background: #3b0764; color: #f0abfc; }
+    
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #000;
+    }
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .track-title { font-size: 1.05rem; font-weight: bold; margin-bottom: 4px; color: #fff; }
+    .track-author { font-size: 0.9rem; color: var(--gold); margin-bottom: 12px; }
+    .track-desc { font-size: 0.85rem; color: #cbd5e1; flex-grow: 1; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Almanacco Musicale</h1>
+    <div class="author-sub">A cura del Prof. Nicolò Ciuffi</div>
+    <div class="nav-bar">
+      <button class="btn-nav" id="btn-prev">◀ Ieri</button>
+      <button class="date-trigger" id="btn-calendar">📅 Seleziona Data</button>
+      <button class="btn-nav" id="btn-next">Domani ▶</button>
+    </div>
+  </header>
+
+  <!-- Modal Calendario a Griglia -->
+  <div class="modal-overlay" id="modal-cal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Seleziona una Giornata</span>
+        <button class="btn-close" id="btn-close-modal">&times;</button>
+      </div>
+      <div class="month-selector" id="month-list"></div>
+      <div class="calendar-grid" id="days-grid"></div>
+    </div>
+  </div>
+
+  <main class="container">
+    <div class="day-tag" id="current-tag">Caricamento ascolti...</div>
+    <div class="tracks-grid">
+      <!-- Scheda Classica -->
+      <div class="track-card card-classica">
+        <div class="card-header">Canone Classico</div>
+        <div class="video-wrapper">
+          <iframe id="video-classica" src="" allowfullscreen></iframe>
+        </div>
+        <div class="card-body">
+          <div class="track-title" id="title-classica">--</div>
+          <div class="track-author" id="author-classica">--</div>
+          <div class="track-desc" id="desc-classica">--</div>
+        </div>
+      </div>
+      <!-- Scheda Risonanze -->
+      <div class="track-card card-risonanze">
+        <div class="card-header">Altre Risonanze</div>
+        <div class="video-wrapper">
+          <iframe id="video-risonanze" src="" allowfullscreen></iframe>
+        </div>
+        <div class="card-body">
+          <div class="track-title" id="title-risonanze">--</div>
+          <div class="track-author" id="author-risonanze">--</div>
+          <div class="track-desc" id="desc-risonanze">--</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Inclusione Dati -->
+  <script src="catalogo.js"></script>
+  <script>
+    const months = [
+      { name: "Gen", num: "01", days: 31 },
+      { name: "Feb", num: "02", days: 28 },
+      { name: "Mar", num: "03", days: 31 },
+      { name: "Apr", num: "04", days: 30 },
+      { name: "Mag", num: "05", days: 31 },
+      { name: "Giu", num: "06", days: 30 },
+      { name: "Lug", num: "07", days: 31 },
+      { name: "Ago", num: "08", days: 31 },
+      { name: "Set", num: "09", days: 30 },
+      { name: "Ott", num: "10", days: 31 },
+      { name: "Nov", num: "11", days: 30 },
+      { name: "Dic", num: "12", days: 31 }
+    ];
+
+    let selectedMonth = "11";
+    let currentIndex = 0;
+    const data = window.ALMANACCO_DATA || [];
+
+    // Trova la data odierna o ripiega sulla prima data disponibile
+    function getTodayMatch() {
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${mm}-${dd}`;
+      const idx = data.findIndex(d => d.date === todayStr);
+      return idx !== -1 ? idx : 0;
+    }
+
+    function renderDay(index) {
+      if (!data[index]) return;
+      currentIndex = index;
+      const item = data[index];
+
+      document.getElementById('current-tag').textContent = item.tag;
+      document.getElementById('btn-calendar').textContent = `📅 ${item.tag.split('·')[0].trim()} ▼`;
+
+      // Classica
+      document.getElementById('title-classica').textContent = item.classica.title;
+      document.getElementById('author-classica').textContent = item.classica.composer;
+      document.getElementById('desc-classica').textContent = item.classica.desc;
+      document.getElementById('video-classica').src = `https://www.youtube.com/embed/${item.classica.ytId}`;
+
+      // Risonanze
+      document.getElementById('title-risonanze').textContent = item.risonanze.title;
+      document.getElementById('author-risonanze').textContent = item.risonanze.artist;
+      document.getElementById('desc-risonanze').textContent = item.risonanze.desc;
+      document.getElementById('video-risonanze').src = `https://www.youtube.com/embed/${item.risonanze.ytId}`;
+    }
+
+    // Navigazione
+    document.getElementById('btn-prev').onclick = () => {
+      if (currentIndex > 0) renderDay(currentIndex - 1);
+    };
+    document.getElementById('btn-next').onclick = () => {
+      if (currentIndex < data.length - 1) renderDay(currentIndex + 1);
+    };
+
+    // Modal Calendario
+    const modal = document.getElementById('modal-cal');
+    document.getElementById('btn-calendar').onclick = () => {
+      modal.style.display = 'flex';
+      buildCalendar(selectedMonth);
+    };
+    document.getElementById('btn-close-modal').onclick = () => {
+      modal.style.display = 'none';
+    };
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    };
+
+    function buildCalendar(mNum) {
+      selectedMonth = mNum;
+      const mContainer = document.getElementById('month-list');
+      mContainer.innerHTML = '';
+      months.forEach(m => {
+        const btn = document.createElement('button');
+        btn.className = `btn-m ${m.num === mNum ? 'active' : ''}`;
+        btn.textContent = m.name;
+        btn.onclick = () => buildCalendar(m.num);
+        mContainer.appendChild(btn);
+      });
+
+      const mInfo = months.find(m => m.num === mNum);
+      const grid = document.getElementById('days-grid');
+      grid.innerHTML = '';
+
+      for (let day = 1; day <= mInfo.days; day++) {
+        const dStr = `${mNum}-${String(day).padStart(2, '0')}`;
+        const matchIdx = data.findIndex(item => item.date === dStr);
+        const btn = document.createElement('button');
+        btn.className = 'day-btn';
+        btn.textContent = day;
+
+        if (matchIdx !== -1) {
+          btn.classList.add('has-data');
+          if (matchIdx === currentIndex) btn.classList.add('current');
+          btn.onclick = () => {
+            renderDay(matchIdx);
+            modal.style.display = 'none';
+          };
+        } else {
+          btn.disabled = true;
+        }
+        grid.appendChild(btn);
+      }
+    }
+
+    // Inizializzazione
+    window.addEventListener('DOMContentLoaded', () => {
+      currentIndex = getTodayMatch();
+      if (data[currentIndex]) {
+        selectedMonth = data[currentIndex].date.split('-')[0];
+        renderDay(currentIndex);
+      }
+    });
+  </script>
+</body>
 </html>
